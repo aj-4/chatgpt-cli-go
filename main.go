@@ -53,6 +53,7 @@ func init() {
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
+  messageHistory := []Message{}
 
 	for {
 		fmt.Print("> ")
@@ -63,6 +64,11 @@ func main() {
 		}
 
 		input = strings.TrimSpace(input)
+    messageHistory = append(messageHistory, Message{
+      Content: input,
+      Role: "user",
+    })
+
 		if input == "" {
 			continue
 		}
@@ -71,30 +77,28 @@ func main() {
 			break
 		}
 
-		response, err := chat(input)
+		response, err := chat(messageHistory)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, color.RedString("Failed to chat: %s\n", err.Error()))
 			continue
 		}
 
 		response = strings.TrimSpace(response)
+    messageHistory = append(messageHistory, Message{
+      Content: response,
+      Role: "assistant",
+    })
 		if response != "" {
 			fmt.Println(color.GreenString(response))
 		}
 	}
 }
 
-func chat(message string) (string, error) {
+func chat(messageHistory []Message) (string, error) {
 	client := &http.Client{}
-  messages := []Message{
-    Message{
-      Content: message,
-      Role: "user",
-    },
-  }
 
 	reqBody := chatRequest{
-		Messages:   messages,
+		Messages:   messageHistory,
 		Model:     "gpt-3.5-turbo",
 		MaxTokens: 256,
 	}
