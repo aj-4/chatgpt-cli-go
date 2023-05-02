@@ -89,7 +89,7 @@ func main() {
       Role: "assistant",
     })
 		if response != "" {
-			fmt.Println(color.GreenString(response))
+			fmt.Println("\n" + color.GreenString(response) + "\n")
 		}
 	}
 }
